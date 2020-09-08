@@ -1,0 +1,98 @@
+(1.)  Analysis of GOTO, GOSUB and IF
+      The GOTO, GOSUB and IF command classes each have a member 
+      variable called dest_line which is the line number that will 
+      be jumped to, and a run command that accepts a pointer to a 
+      map as an argument. The map in question is the map containing 
+      the line numbers and command classes from each parsed line in 
+      the BASIC program. The run command performs a map search with 
+      a checker iterator in theta(logn) time to find if the destination 
+      line exists. There is a block of code for error catching to 
+      detect whether the iterator actually finds the destination line, 
+      this is theta(1). If the line is found, then the function sets 
+      the actual BASIC program iterator to the map index containing 
+      that destination line ID, this is also theta(1). So the total 
+      run time for these functions is:
+
+		theta(logn) + theta(1) + theta(1)
+		=theta(logn)
+
+(2.) Analysis of RETURN
+     The RETURN command works with a stack of integers representing 
+     the line numbers of each GOSUB command. The RETURN command class 
+     has a run command function which checks to see if the GOSUB stack 
+     is empty in which case it will throw an error. If it is not empty, 
+     it will obtain the top() item in the stack in theta(1) time and 
+     use an iterator to find the integer key value of top() in the BASIC 
+     command map in theta(logn) time. Then it will pop off that element 
+     of the stack in constant theta(1) time. The total runtime of this 
+     will be:
+
+		theta(1) + theta(logn) + theta(1)
+		=theta(logn)
+
+(3.) Analysis of VARIABLE FINDING and OVERWRITING
+(a.) FINDING A VARIABLE
+	There are two scenarios in finding a variable. The first is if it 
+	is a regular integer variable and the second case is if it is an 
+	array variable. All variables are stored in a map with key value 
+	string (variable name) and second value being a [nested] map of 
+	key value integer (address) and second value integer (the value). 
+
+	To find a regular integer variable, you would need to find the 
+	associated variable name in the outer map which takes theta(logn) 
+	time, and the address part of the nested map is always 0 and the 
+	size of that map is always 1. So accessing the value requires only 
+	to return sub_map.begin() which takes constant theta(1) time. Total 
+	run time to find a regular int variable is:
+
+		theta(logn) + theta(1)
+		=theta(logn)
+
+	To find an array variable, you would need to find the associated 
+	variable name in the outer map which takes theta(logn) time. You would 
+	then need to find the associated address of the array variable. In the 
+	BASIC program, addresses can take the form of any numeric expression 
+	and to get the integer value of this may be constant time if it only 
+	contains numbers (theta(1)) or it might take logarithmic time if the 
+	address contains a variable  (theta(logn)) because it will need to do a 
+	map look up. Considering worst case (theta(logn)), once the address 
+	value is acquired, to obtain the associated value will require another 
+	sub_map.find() (theta(logn)) and then we can return the vairiable in 
+	constant time theta(1). The run times are sequential so they are 
+	additively related with regard to total runtime. So the total run time to 
+	find an array variable is: 
+
+		theta(logn) + theta(logn) + theta(logn) + theta(1)
+		=3 * logn + 1
+		=theta(logn)
+
+(b.) OVERWRITING A VARIABLE
+	To overwrite a variable is relatively simple. The program would run the 
+	same process for finding the associated variable's location in the 
+	variable map (it uses a pointer to ensure that changes are implemented 
+	to the actual map) and then it would use the assignment operator to 
+	change the second value of the nested map which is constant time 
+	theta(1). Using worst case (array variables), the total runtime is:
+
+		theta(logn) + theta(1)
+		=theta(logn)
+
+	Assuming the iterator is already at the desired sub map entry, then the 
+	total runtime is only the time of the assignment operator, simply:
+
+		=theta(1)
+
+(4.) ARRAY ENTRY FINDING
+     To find an array variable, you would need to find the associated 
+     variable name in the outer map which takes theta(logn) time. In my 
+     code, array variable names are stored as "Vname[]". Assuming the 
+     array index value is already found, to obtain the associated value 
+     will require another map.find() (theta(logn)) to obtain the map 
+     entry associated with that particular index and then we can return 
+     the vairiable in constant time theta(1). The run times are sequential 
+     so they are additively related with regard to toal runtime. So the 
+     total run time to find an array variable is: 
+
+		theta(logn) + theta(logn) + theta(1)
+		=2 * logn + 1
+		=theta(logn)
